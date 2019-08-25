@@ -8,6 +8,7 @@
           <div class="branco">
           </div>
           <v-text-field
+            v-model="search"
             class="left"
             label="Pesquisa"
             placeholder="Pesquise os personagens"
@@ -15,58 +16,51 @@
           ></v-text-field>
         </v-col>
       </v-row>
+    <v-container>
       <v-row>
-        <v-card
-          class="mx-auto"
-          :flat="flat"
-          :loading="loading"
-          :outlined="outlined"
-          :elevation="elevation"
-          :raised="raised"
-          :width="width"
-          :height="height"
-        >
-          <v-img
-            v-if="media"
-            class="white--text"
-            height="200px"
-            src="https://cdn.vuetifyjs.com/images/cards/docks.jpg"
-          >
-          <v-card-text class="bottom">I'm card text<br/> Aloha</v-card-text>
-          </v-img>
-        </v-card>
+        <div v-for="personagen in personagensPesquisa" :key="personagen.char_id">
+          <card-character :personagen="personagen" />        
+        </div>
+        
       </v-row>
+    </v-container>
 
   </div>
 </template>
 
 <script>
+import Card from "./components/Card"
+import {HTTP} from "./http-commom"
+
   export default {
-    data: () => ({
-      flat: false,
-      media: true,
-      loading: false,
-      actions: true,
-      outlined: false,
-      elevation: undefined,
-      raised: false,
-      width: 344,
-      height: undefined,
-    }),
+    data(){
+      return {
+        personagens: [],
+        search: ""
+      }
+    },
+    components: {
+      'card-character': Card,
+    },
+    created(){
+      HTTP.get('characters')
+      .then(response =>{
+        this.personagens = response.data
+      })
+    },
+    computed: {
+      personagensPesquisa: function(){
+        return this.personagens.filter((persnon) =>{
+          return persnon.name.match(this.search)
+        })
+      }
+    },
+
   }
 </script>
 
 <style>
-.bottom{
-  align-items: center;
-  color: aquamarine;
-  background-color: blue;
-  margin-top: 40%;
-}
-.left{
-  float: right;
-  margin: 1px;  
-}
+
 .branco{
   float: right;
   margin: 1vw;
@@ -75,6 +69,12 @@
   width: 10vw;
 }
 .v-input__slider {
-    width: 100%;
-  }
+  width: 100%;
+}
+
+.left{
+  height: 100%;
+  padding: 5px;
+  margin-right: 10px;
+}
 </style>
